@@ -1,2 +1,3 @@
 // List all documents
+
 db.school.find().forEach(printjson);
