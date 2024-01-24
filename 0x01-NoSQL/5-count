@@ -1,3 +1,2 @@
 // script: displays number of documents in collection school
-// db name will be passed as option of mongo command
-db.school.count()
+db.school.find().count();
