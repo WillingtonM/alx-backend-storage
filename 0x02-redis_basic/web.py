@@ -17,19 +17,16 @@ def count_url_response(method: Callable):
     """
 
     @wraps(method)
-    def wrapper(url):
-        cached_key = "cached:" + url
-        cached_data = s_redis.get(cached_key)
-        if cached_data:
-            return cached_data.decode("utf-8")
-
-        count_key = "count:" + url
+    def wrapper(url):  # sourcery skip: use-named-expression
+        """ Wrapper for decorator """
+        s_redis.incr(f"count:{url}")
+        cached_html = s_redis.get(f"cached:{url}")
+        if cached_html:
+            return cached_html.decode('utf-8')
         html = method(url)
-
-        s_redis.incr(count_key)
-        s_redis.set(cached_key, html)
-        s_redis.expire(cached_key, 10)
+        s_redis.setex(f"cached:{url}", 10, html)
         return html
+
     return wrapper
 
 
