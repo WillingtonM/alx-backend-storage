@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Module for web cache and tracker
+    Module for web cache and tracker
 """
-
 import redis
 import requests
 s_redis = redis.Redis()
