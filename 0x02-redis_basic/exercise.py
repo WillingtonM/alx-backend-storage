@@ -45,7 +45,7 @@ def replay(method: Callable) -> None:
         Function that replays the history of a particular function
     """
     r = redis.Redis()
-    key_m = func.__qualname__
+    key_m = method.__qualname__
     inp_m = r.lrange("{}:inputs".format(key_m), 0, -1)
     outp_m = r.lrange("{}:outputs".format(key_m), 0, -1)
     calls_number = len(inp_m)
