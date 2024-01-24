@@ -8,6 +8,8 @@ import requests
 from functools import wraps
 import redis
 
+s_redis = redis.Redis()
+
 
 def count_url_response(method: Callable):
     """
@@ -15,17 +17,19 @@ def count_url_response(method: Callable):
     """
 
     @wraps(method)
-    def wrapper(url: str, *args, **kwargs):
-        """
-            function that implement caching and tracking
-        """
-        key_count = "count:{}".format(url)
-        redis = redis.Redis()
-        redis.incr(key_count)
-        res = method(url, *args, **kwargs)
-        redis.setex(url, timedelta(seconds=10), str(res))
-        return res
+    def wrapper(url):
+        cached_key = "cached:" + url
+        cached_data = s_redis.get(cached_key)
+        if cached_data:
+            return cached_data.decode("utf-8")
 
+        count_key = "count:" + url
+        html = method(url)
+
+        s_redis.incr(count_key)
+        s_redis.set(cached_key, html)
+        s_redis.expire(cached_key, 10)
+        return html
     return wrapper
 
 
@@ -34,5 +38,5 @@ def get_page(url: str) -> str:
     """
         Return HTML content
     """
-    response = requests.get(url)
-    return response.text
+    resp = requests.get(url)
+    return resp.text
