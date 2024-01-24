@@ -1,0 +1,5 @@
+// script: update document with name = Holberton school, add  new attr address
+db.school.update(
+	{name:"Holberton school"},
+	{$set: {address: "972 Mission street"}},
+	{ multi: true })
