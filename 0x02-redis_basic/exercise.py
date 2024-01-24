@@ -9,7 +9,9 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
-    """function that count how many times methods of Cache class are called"""
+    """
+        function that count how many times methods of Cache class are called
+    """
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -24,7 +26,7 @@ def count_calls(method: Callable) -> Callable:
 
 
 def call_history(method: Callable) -> Callable:
-    """Function that store history of inputs and outputs for particular function"""
+    """store history of inputs and outputs for particular function"""
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -44,19 +46,19 @@ def replay(method: Callable) -> None:
     """
         Function that replays the history of a particular function
     """
-    r = redis.Redis()
-    key_m = method.__qualname__
-    inp_m = r.lrange("{}:inputs".format(key_m), 0, -1)
-    outp_m = r.lrange("{}:outputs".format(key_m), 0, -1)
-    calls_number = len(inp_m)
-    times_str = 'times'
-    if calls_number == 1:
-        times_str = 'time'
-    fin = '{} was called {} {}:'.format(key_m, calls_number, times_str)
+    s_redis = redis.Redis()
+    method_key = method.__qualname__
+    inp_key = s_redis.lrange("{}:inputs".format(method_key), 0, -1)
+    outp_key = s_redis.lrange("{}:outputs".format(method_key), 0, -1)
+    call_count = len(inp_key)
+    str_time = 'times'
+    if call_count == 1:
+        str_time = 'time'
+    fin = '{} was called {} {}:'.format(method_key, call_count, str_time)
     print(fin)
-    for k, v in zip(inp_m, outp_m):
+    for k, v in zip(inp_key, outp_key):
         fin = '{}(*{}) -> {}'.format(
-            key_m,
+            method_key,
             k.decode('utf-8'),
             v.decode('utf-8')
         )
@@ -75,7 +77,7 @@ class Cache:
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
-            function store history of inputs and outputs for particular function
+            store history of inputs and outputs for particular function
         """
         r_key = str(uuid4())
         self._redis.set(r_key, data)

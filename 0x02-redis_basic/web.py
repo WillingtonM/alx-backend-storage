@@ -10,8 +10,8 @@ import redis
 
 
 def count_url_response(method: Callable):
-    """ 
-        Decorator counting how many times URL is accessed 
+    """
+        Decorator counting how many times URL is accessed
     """
 
     @wraps(method)
